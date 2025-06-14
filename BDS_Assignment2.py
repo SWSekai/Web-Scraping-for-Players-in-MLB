@@ -53,7 +53,7 @@ class WebScrapper:
         print(self.driver)
         while self.__max_year_flag is not False:
             s_soup = BeautifulSoup(self.getPageSource(), 'html.parser') # 獲取當前standrad頁面的HTML源碼
-            s_table = getTableData(e_soup) # 獲取standrad表格數據
+            s_table = getTableData(s_soup) # 獲取standrad表格數據
             self.goToExpandView() # 查找expand按鈕元素
             e_soup = BeautifulSoup(self.getPageSource(), 'html.parser') # 獲取當前expand頁面的HTML源碼
             e_table = getTableData(e_soup) # 獲取expand表格數據
@@ -151,9 +151,9 @@ class WebScrapper:
             # 使用XPATH查找按鈕元素，根據按鈕的文本內容查找
             __standard_view_button = self.driver.find_element(By.XPATH, '//*[@id="stats-app-root"]/section/section/div[1]/div[2]/div/div[1]/div/div[1]/button')
             self.driver.execute_script("arguments[0].click();", __standard_view_button) 
-            print("返回" + self.__current_year + "年的standrad view")
+            print(f"返回{self.__current_year}年的standrad view")
         except:
-            print("未找到" + self.__current_year + "年的standrad按鈕")
+            print(f"未找到{self.__current_year}年的standrad按鈕")
 
 if __name__ == "__main__":
     url = "https://www.mlb.com/stats/pitching/2003"
