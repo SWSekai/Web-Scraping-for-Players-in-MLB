@@ -61,7 +61,7 @@ def getTableData(soup, flag = False):
 def storeInCSV(df, filename):
     df.to_csv("players_stats.csv", index=False)
     
-    print(f"數據已存儲到 {filename}")
+    print(f"數據已儲存到 {filename}")
 
 if __name__ == "__main__":
     url = "https://www.mlb.com/stats/pitching/2003"
