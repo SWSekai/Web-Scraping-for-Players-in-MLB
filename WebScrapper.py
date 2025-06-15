@@ -9,7 +9,6 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.microsoft import EdgeChromiumDriverManager
 
 from bs4 import BeautifulSoup
-import time
 import pandas as pd
 
 from CaptureTableInOnePage import getTableData
@@ -26,11 +25,12 @@ class WebScrapper:
     __max_column = 39 # 最大列數
     __current_year = 2003 # 當前年份，由遠到近
     __max_year_flag = True # 是否到達最大年份的標誌
+    __current_page = 1 # 當前頁碼
     
     __page_source = None # 當前頁面的HTML源碼
     __table = None # 用於存儲表格數據
     
-    def __init__(self, url):
+    def __init__(self, url, csv_filename):
         """
         初始化WebScrapper類別，設置瀏覽器驅動和網址
         """
@@ -51,6 +51,7 @@ class WebScrapper:
         """
         print("開始處理數據")
         print(self.driver)
+        
         while self.__max_year_flag is not False:
             s_soup = BeautifulSoup(self.getPageSource(), 'html.parser') # 獲取當前standrad頁面的HTML源碼
             s_table = getTableData(s_soup) # 獲取standrad表格數據
@@ -88,8 +89,7 @@ class WebScrapper:
         if __page_source is None:
             print("無法獲取當前頁面的HTML源碼")
             return None
-        else:
-            print("獲取當前頁面的HTML源碼成功")
+
         return __page_source
     
     def goToExpandView(self):
@@ -112,6 +112,7 @@ class WebScrapper:
             # 使用XPATH查找按鈕元素，根據按鈕的文本內容查找
             __next_page_button = self.driver.find_element(By.XPATH, '/html/body/main/div[2]/section/section/div[4]/div[2]/div/div/div[2]/button')
             self.driver.execute_script("arguments[0].click();", __next_page_button)
+            self.__current_page += 1
             self.goToStandradView()
             
             print("找到下一頁按鈕，跳至下一頁的standrad view")
@@ -135,6 +136,7 @@ class WebScrapper:
         
         if self.__current_year <= self.__max_year:
             self.driver.get("https://www.mlb.com/stats/pitching/" + str(self.__current_year))
+            self.__current_page = 1
             self.waitForPageLoad()
             self.goToStandradView()
             
@@ -151,14 +153,15 @@ class WebScrapper:
             # 使用XPATH查找按鈕元素，根據按鈕的文本內容查找
             __standard_view_button = self.driver.find_element(By.XPATH, '//*[@id="stats-app-root"]/section/section/div[1]/div[2]/div/div[1]/div/div[1]/button')
             self.driver.execute_script("arguments[0].click();", __standard_view_button) 
-            print(f"返回{self.__current_year}年的standrad view")
+            print(f"返回{self.__current_year}年的第{self.__current_page}standrad view")
         except:
             print(f"未找到{self.__current_year}年的standrad按鈕")
 
 if __name__ == "__main__":
     url = "https://www.mlb.com/stats/pitching/2003"
     
-    scraper = WebScrapper(url)
+    csv_filename = "players_stats.csv" # CSV檔案名稱
+    scraper = WebScrapper(url, csv_filename)
     scraper.processing() # 開始處理數據
 
     scraper.driver.quit()
